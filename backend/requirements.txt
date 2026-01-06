@@ -1,0 +1,27 @@
+PHP >= 8.1
+Laravel Framework >= 10.10
+Guzzle HTTP >= 7.2
+Laravel Sanctum >= 3.3
+Laravel Tinker >= 2.8
+
+Development Dependencies:
+Faker >= 1.9.1
+Laravel Pint >= 1.0
+Laravel Sail >= 1.18
+Mockery >= 1.4.4
+Collision >= 7.0
+PHPUnit >= 10.1
+Spatie Laravel Ignition >= 2.0
+
+Extensions Required:
+- php-mysql (for MySQL database)
+- php-sqlite3 (for SQLite database)
+- php-mbstring
+- php-xml
+- php-curl
+- php-zip
+- php-bcmath
+- php-json
+- php-tokenizer
+- php-fileinfo
+- php-openssl

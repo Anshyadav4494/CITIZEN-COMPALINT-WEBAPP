@@ -1,0 +1,79 @@
+CREATE TABLE users (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('citizen', 'officer', 'admin') DEFAULT 'citizen',
+    department_id BIGINT UNSIGNED NULL,
+    zone_id BIGINT UNSIGNED NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE zones (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    city VARCHAR(255) DEFAULT 'Smart City',
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categories (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    sla_hours INT NOT NULL DEFAULT 48, -- Standard Local Agreement time in hours
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE departments (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    category_id BIGINT UNSIGNED NULL, -- Which category this department handles
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+);
+
+CREATE TABLE complaints (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    category_id BIGINT UNSIGNED NOT NULL,
+    zone_id BIGINT UNSIGNED NOT NULL,
+    department_id BIGINT UNSIGNED NULL, -- Auto-assigned
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    location_lat DECIMAL(10, 8),
+    location_lng DECIMAL(11, 8),
+    address VARCHAR(255) NULL,
+    status ENUM('Submitted', 'Assigned', 'In Progress', 'Resolved', 'Closed') DEFAULT 'Submitted',
+    priority ENUM('Low', 'Medium', 'High', 'Critical') DEFAULT 'Low',
+    sla_deadline TIMESTAMP NULL,
+    resolved_at TIMESTAMP NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (zone_id) REFERENCES zones(id) ON DELETE CASCADE,
+    FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
+);
+
+CREATE TABLE complaint_images (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    complaint_id BIGINT UNSIGNED NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (complaint_id) REFERENCES complaints(id) ON DELETE CASCADE
+);
+
+CREATE TABLE status_logs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    complaint_id BIGINT UNSIGNED NOT NULL,
+    changed_by BIGINT UNSIGNED NOT NULL,
+    old_status VARCHAR(50),
+    new_status VARCHAR(50),
+    remarks TEXT,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (complaint_id) REFERENCES complaints(id) ON DELETE CASCADE,
+    FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE CASCADE
+);
